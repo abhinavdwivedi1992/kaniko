@@ -1,0 +1,49 @@
+=======================================Secret==================
+$ kubectl create secret docker-registry registry-credentialsdockerhub  --docker-username=sachinbhatela     --docker-password=Welcome12# --docker-email=sachinbhatela@gmail.com
+
+===========================Pipeline======================================
+
+pipeline {
+  agent {
+    kubernetes {
+      //cloud 'kubernetes'
+      yaml """
+kind: Pod
+metadata:
+  name: kaniko
+spec:
+  containers:
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:debug-539ddefcae3fd6b411a95982a830d987f4214251
+    imagePullPolicy: Always
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+      - name: jenkins-docker-cfg
+        mountPath: /kaniko/.docker
+  volumes:
+  - name: jenkins-docker-cfg
+    projected:
+      sources:
+      - secret:
+          name: registry-credentialsdockerhub
+          items:
+            - key: .dockerconfigjson
+              path: config.json
+"""
+    }
+  }
+  stages {
+    stage('Build with Kaniko') {
+      steps {
+        git 'https://github.com/sachinbhatela/kaniko.git'
+        container(name: 'kaniko') {
+            sh '''
+            /kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=sachinbhatela/kanikotest:latest --destination=sachinbhatela/kanikotest:v$BUILD_NUMBER
+            '''
+        }
+      }
+    }
+  }
+}
