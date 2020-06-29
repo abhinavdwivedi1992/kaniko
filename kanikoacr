@@ -19,7 +19,7 @@ echo $SP_PASSWD
 echo $CLIENT_ID
 
 
-kubectl create secret docker-registry registry-credentials --docker-server ${ACR_LOGIN_SERVER} --docker-username ${CLIENT_ID} --docker-password ${SP_PASSWD} --docker-email ${EMAIL}
+kubectl create secret docker-registry registry-credentialsacr4 --docker-server ${ACR_LOGIN_SERVER} --docker-username ${CLIENT_ID} --docker-password ${SP_PASSWD} --docker-email ${EMAIL}
 
 ==================================================Jenkins File==================================
 pipeline {
